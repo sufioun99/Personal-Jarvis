@@ -3,7 +3,7 @@ LLM Integration Layer - Multi-model support with routing and fallback
 """
 from typing import Optional, Dict, Any, List
 from enum import Enum
-import openai
+from openai import AsyncOpenAI
 from anthropic import Anthropic
 import google.generativeai as genai
 from config import settings
@@ -29,10 +29,9 @@ class LLMRouter:
         self.anthropic_client = None
         self.google_client = None
         
-        # Initialize OpenAI
+        # Initialize OpenAI with new API
         if settings.openai_api_key:
-            openai.api_key = settings.openai_api_key
-            self.openai_client = openai
+            self.openai_client = AsyncOpenAI(api_key=settings.openai_api_key)
             logger.info("OpenAI client initialized")
         
         # Initialize Anthropic
@@ -124,7 +123,7 @@ class LLMRouter:
             messages.append({"role": "system", "content": system_prompt})
         messages.append({"role": "user", "content": query})
         
-        response = await self.openai_client.ChatCompletion.acreate(
+        response = await self.openai_client.chat.completions.create(
             model=settings.openai_model,
             messages=messages,
             temperature=temperature,
