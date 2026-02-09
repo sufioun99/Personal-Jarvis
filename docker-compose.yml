@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  jarvis:
+    build: .
+    container_name: jarvis-ai
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
+      - JARVIS_HOST=0.0.0.0
+      - JARVIS_PORT=8000
+      - LOG_LEVEL=INFO
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - jarvis-network
+
+  # Optional: Redis for message queue (if implementing Celery)
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: jarvis-redis
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - redis-data:/data
+  #   networks:
+  #     - jarvis-network
+
+networks:
+  jarvis-network:
+    driver: bridge
+
+volumes:
+  redis-data:
