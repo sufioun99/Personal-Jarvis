@@ -1,6 +1,7 @@
 """
 FastAPI Web Server for JARVIS
 """
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -12,11 +13,22 @@ from utils.logger import logger
 from config import settings
 
 
-# Create FastAPI app
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Application lifespan manager"""
+    # Startup
+    logger.info("JARVIS API server starting up")
+    yield
+    # Shutdown
+    logger.info("JARVIS API server shutting down")
+    await jarvis.api_manager.close()
+
+# Create FastAPI app with lifespan
 app = FastAPI(
     title="JARVIS AI Assistant",
     description="Personal AI Assistant with Voice Control and Multi-Agent System",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 # Add CORS middleware
@@ -201,19 +213,6 @@ async def websocket_endpoint(websocket: WebSocket):
             websocket
         )
         manager.disconnect(websocket)
-
-
-@app.on_event("startup")
-async def startup_event():
-    """Run on application startup"""
-    logger.info("JARVIS API server starting up")
-
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Run on application shutdown"""
-    logger.info("JARVIS API server shutting down")
-    await jarvis.api_manager.close()
 
 
 if __name__ == "__main__":

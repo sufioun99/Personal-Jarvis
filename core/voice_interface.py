@@ -122,7 +122,7 @@ class VoiceInterface:
                     text = self.recognizer.recognize_sphinx(audio)
                     logger.info(f"Recognized (Sphinx): {text}")
                     return text
-                except:
+                except (sr.UnknownValueError, sr.RequestError):
                     return None
                     
         except sr.WaitTimeoutError:

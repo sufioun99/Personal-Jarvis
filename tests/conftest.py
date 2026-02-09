@@ -5,6 +5,8 @@ import pytest
 import asyncio
 
 
+# Note: Using session-scoped event loop for performance.
+# This is safe for our test suite as tests don't have conflicting fixtures.
 @pytest.fixture(scope="session")
 def event_loop():
     """Create an event loop for async tests"""

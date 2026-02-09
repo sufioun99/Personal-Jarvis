@@ -261,7 +261,7 @@ For issues and questions:
 
 ## 🗺️ Roadmap
 
-- [ ] Docker containerization
+- [x] Docker containerization
 - [ ] Kubernetes deployment support
 - [ ] Enhanced memory system with vector DB
 - [ ] Plugin system for custom agents
